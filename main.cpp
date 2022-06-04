@@ -9,13 +9,12 @@
 #include <ctime>
 #include <cstring>
 #include <typeinfo>
-
 using namespace std;
 
 
-vector<vector<double>> c_locations; //guardaremos la ubicacion de los clientes in format (x,y,mass)
-vector<vector<double>> lr_locations; //guardaremos la los puntos de lanzamiento/rescate in format (x,y)
-vector<double> location_depot; //guardaremos la los puntos de lanzamiento/rescate in format (x,y)
+vector<vector<double>> c_locations; //guardaremos la ubicacion de los clientes in format <(x,y,mass)>
+vector<vector<double>> lr_locations; //guardaremos la los puntos de lanzamiento/rescate in format <(x,y)>
+vector<double> location_depot; //guardamos la localizacion del deposito in format (x,y)
 
 float drone_speed;
 float truck_speed;
@@ -46,7 +45,7 @@ void leer_archivo(string arch){
             }
             c++;
         }
-        else if ( c >= 9 && helper){
+        else if ( c >= 9 && helper){ //lineas para el cliente
             stringstream input_stringstream(linea);
             string locations;
             getline(input_stringstream, locations);
@@ -86,7 +85,7 @@ void leer_archivo(string arch){
     }
 }
 
-void print_vv(vector<vector<double>> v, string name){
+void print_vv(vector<vector<double>> v, string name){ //printear array de arrays
     for (int i = 0; i < v.size(); i++)
     {
         std::cout << name << "\n";
