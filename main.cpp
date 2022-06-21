@@ -14,10 +14,13 @@ using namespace std;
 
 vector<vector<double>> c_locations; //guardaremos la ubicacion de los clientes in format <(x,y,mass)>
 vector<vector<double>> lr_locations; //guardaremos la los puntos de lanzamiento/rescate in format <(x,y)>
-vector<double> location_depot; //guardamos la localizacion del deposito in format (x,y)
 
 float drone_speed;
 float truck_speed;
+int poblacion;
+int maxIter;
+int k;
+int maxWeight;
 
 void leer_archivo(string arch){
     string nombreArchivo = arch;
@@ -30,22 +33,7 @@ void leer_archivo(string arch){
     int c = 0;
     // Obtener línea de archivo, y almacenar contenido en "linea"
     while (getline(archivo, linea)) {
-        if ( c == 6){ //si es la linea del depot
-            stringstream input_stringstream(linea);
-            string depot;
-            getline(input_stringstream, depot);
-
-            string arr[2];
-            int i = 0;
-            stringstream ssin(depot);
-            while (ssin.good() && i < 4){
-                ssin >> arr[i];
-                location_depot.push_back(stod(arr[i]));
-                ++i;
-            }
-            c++;
-        }
-        else if ( c >= 9 && helper){ //lineas para el cliente
+        if ( c >= 9 && helper){ //lineas para el cliente
             stringstream input_stringstream(linea);
             string locations;
             getline(input_stringstream, locations);
