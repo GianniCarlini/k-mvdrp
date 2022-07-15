@@ -33,6 +33,14 @@ void leer_archivo(string arch){
     int c = 0;
     // Obtener línea de archivo, y almacenar contenido en "linea"
     while (getline(archivo, linea)) {
+        if ( c == 2){ //linea velocidad del camion
+            stringstream input_stringstream(linea);
+            string truck;
+            getline(input_stringstream, truck);
+            float f_1 = stod(truck);
+            truck_speed = f_1;
+            c++;
+        }
         if ( c >= 9 && helper){ //lineas para el cliente
             stringstream input_stringstream(linea);
             string locations;
@@ -91,8 +99,8 @@ int main(int argc, char *argv[]){
     }
     //Primero leemos el archivo y generamos las variables
     leer_archivo(passedValue);
-    print_vv(lr_locations, "lr");
-    print_vv(c_locations, "c");
+    //print_vv(lr_locations, "lr");
+    //print_vv(c_locations, "c");
     // printf("%.17g \n", lr_locations[0][1]);
     // std::cout << passedValue << "\n";
     return 0;
