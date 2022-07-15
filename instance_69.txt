@@ -1,6 +1,6 @@
 |V|=50 |C|=25
 Truck speed 
-5.0
+5.0 
 Drone speed 
 10.0 
 Location of Depot 

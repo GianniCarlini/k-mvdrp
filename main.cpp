@@ -37,11 +37,19 @@ void leer_archivo(string arch){
             stringstream input_stringstream(linea);
             string truck;
             getline(input_stringstream, truck);
-            float f_1 = stod(truck);
+            float f_1 = stof(truck);
             truck_speed = f_1;
             c++;
         }
-        if ( c >= 9 && helper){ //lineas para el cliente
+        else if ( c == 4){ //linea velocidad del camion
+            stringstream input_stringstream(linea);
+            string drone;
+            getline(input_stringstream, drone);
+            float f_1 = stof(drone);
+            drone_speed = f_1;
+            c++;
+        }
+        else if ( c >= 9 && helper){ //lineas para el cliente
             stringstream input_stringstream(linea);
             string locations;
             getline(input_stringstream, locations);
@@ -77,7 +85,9 @@ void leer_archivo(string arch){
             }
             c_locations.push_back(c_loc);
         }
-        c++;
+        else {
+            c++;
+        }
     }
 }
 
