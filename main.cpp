@@ -18,7 +18,7 @@ using namespace std;
 vector<vector<double>> c_locations; //guardaremos la ubicacion de los clientes in format <(x,y,mass)>
 vector<vector<double>> lr_locations; //guardaremos la los puntos de lanzamiento/rescate in format <(x,y)>
 vector<vector<vector<vector<double>>>> poblacion_inicial_c; //guardaremos la poblacion
-vector<vector<vector<vector<double>>>> poblacion_inicial_t; //guardaremos la poblacion
+vector<vector<vector<double>>> poblacion_inicial_t; //guardaremos la poblacion
 
 float drone_speed;
 float truck_speed;
@@ -164,7 +164,6 @@ void generar_poblacion(int n)
     for (int l=0; l<c_locations.size(); l++){
         vect2.push_back(c_locations[l]);}
     for (int k = 0; k < n; k++){
-        std::cout<<"problacion "<<k+1<<"\n";
         unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();//generar seed para que sea totalmente random
         std::default_random_engine e(seed);
         std::shuffle(vect2.begin(), vect2.end(), e);
@@ -186,11 +185,12 @@ void generar_poblacion(int n)
             }
         }
         poblacion_inicial_c.push_back(sol_op);
+
+        vector<vector<double>> vect3;
+        for (int t=0; t<sol_op.size(); t++){
+            vect3.push_back(lr_locations[t]);}
+        poblacion_inicial_t.push_back(vect3);
     }
-    print_vv(poblacion_inicial_c[0][0],"b");
-    std::cout << poblacion_inicial_c[0].size() << "\n";
-    print_vv(poblacion_inicial_c[1][0],"a");
-    std::cout << poblacion_inicial_c[1].size() << "\n";
 }
 
 
