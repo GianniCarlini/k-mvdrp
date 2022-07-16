@@ -10,12 +10,15 @@
 #include <cstring>
 #include <typeinfo>
 #include<math.h>
+#include <random>
+#include <chrono> 
 using namespace std;
 
 
 vector<vector<double>> c_locations; //guardaremos la ubicacion de los clientes in format <(x,y,mass)>
 vector<vector<double>> lr_locations; //guardaremos la los puntos de lanzamiento/rescate in format <(x,y)>
-vector<vector<vector<vector<double>>>> poblacion_inicial; //guardaremos la poblacion
+vector<vector<vector<vector<double>>>> poblacion_inicial_c; //guardaremos la poblacion
+vector<vector<vector<vector<double>>>> poblacion_inicial_t; //guardaremos la poblacion
 
 float drone_speed;
 float truck_speed;
@@ -130,37 +133,8 @@ void clientes(){
     }
 }
 
-void generar_poblacion(int n)
-{
-    for (int k = 0; k < n; k++){
-        vector<vector<vector<double>>> sol_op;
-        float capacidad_max = peso_drone * n_drones;
-        int x;
-        float peso_operacion = 0;
-        for (int i = 0;  i < c_locations.size(); i++){
-            vector<vector<double>> temp_op;
-            peso_operacion = peso_operacion + c_locations[i][2];
-            if (peso_operacion <= capacidad_max){
-                temp_op.push_back(c_locations[i]);
-            }
-            else if (peso_operacion > capacidad_max){
-                sol_op.push_back(temp_op);
-                peso_operacion = 0;
-                i--;
-            }
-        }
-        std::cout <<  sol_op.size() << "\n";
-        poblacion_inicial.push_back(sol_op);
-        std::cout <<  poblacion_inicial.size() << "\n";
-        // for (int i = 0; i < sol_op.size(); i++)
-        // {
-        //     std::cout << "name" << "\n";
-        //     printf("%.17g \n", sol_op[i]);
-        // }
-    }
-}
-
 void print_vv(vector<vector<double>> v, string name){ //printear array de arrays
+    std::cout << "print" << "\n";
     for (int i = 0; i < v.size(); i++)
     {
         std::cout << name << "\n";
@@ -171,6 +145,55 @@ void print_vv(vector<vector<double>> v, string name){ //printear array de arrays
     }
 }
 
+void print(std::vector<int> const &v){
+    for (int i: v) {
+        std::cout << i << ' ';
+    }
+}
+
+void shuffle(vector<vector<double>> v){
+    unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();//generar seed para que sea totalmente random
+    std::default_random_engine e(seed);
+    std::shuffle(v.begin(), v.end(), e);
+    print_vv(v, "copy");
+}
+
+void generar_poblacion(int n)
+{
+    vector<vector<double>> vect2;
+    for (int l=0; l<c_locations.size(); l++){
+        vect2.push_back(c_locations[l]);}
+    for (int k = 0; k < n; k++){
+        std::cout<<"problacion "<<k+1<<"\n";
+        unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();//generar seed para que sea totalmente random
+        std::default_random_engine e(seed);
+        std::shuffle(vect2.begin(), vect2.end(), e);
+        vector<vector<vector<double>>> sol_op;
+        float capacidad_max = peso_drone * n_drones;
+        int x;
+        float peso_operacion = 0;
+        vector<vector<double>> temp_op;
+        for (int i = 0;  i < vect2.size(); i++){
+            peso_operacion = peso_operacion + vect2[i][2];
+            if (peso_operacion <= capacidad_max){
+                temp_op.push_back(vect2[i]);
+            }
+            else if (peso_operacion > capacidad_max){
+                sol_op.push_back(temp_op);
+                peso_operacion = 0;
+                temp_op.clear();
+                i--;
+            }
+        }
+        poblacion_inicial_c.push_back(sol_op);
+    }
+    print_vv(poblacion_inicial_c[0][0],"b");
+    std::cout << poblacion_inicial_c[0].size() << "\n";
+    print_vv(poblacion_inicial_c[1][0],"a");
+    std::cout << poblacion_inicial_c[1].size() << "\n";
+}
+
+
 int main(int argc, char *argv[]){
     string passedValue;
     for(int i = 1; i < argc; i++){
@@ -178,7 +201,7 @@ int main(int argc, char *argv[]){
     }
     //Primero leemos el archivo y generamos las variables
     leer_archivo(passedValue);
-    generar_poblacion(14);
+    generar_poblacion(2);
     //print_vv(lr_locations, "lr");
     //print_vv(c_locations, "c");
     // printf("%.17g \n", lr_locations[0][1]);
