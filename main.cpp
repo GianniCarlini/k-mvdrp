@@ -110,10 +110,9 @@ double euclidian(double x1, double y1, double x2, double y2)
 	return dist;
 }
 
-void print_vv(vector<vector<double>> v, string name){ //printear array de arrays
+void print_vv(vector<vector<double>> v){ //printear array de arrays
     for (int i = 0; i < v.size(); i++)
     {
-        std::cout << name << "\n";
         for (int j = 0; j < v[i].size(); j++)
         {
             printf("%.17g \n", v[i][j]);
@@ -131,7 +130,7 @@ void shuffle(vector<vector<double>> v){
     unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();//generar seed para que sea totalmente random
     std::default_random_engine e(seed);
     std::shuffle(v.begin(), v.end(), e);
-    print_vv(v, "copy");
+    //print_vv(v, "copy");
 }
 
 void generar_poblacion(int n)
@@ -175,13 +174,15 @@ double f_evaluacion(){
 
     for (int i=0; i<poblacion_inicial_c.size(); i++){
         vector<vector<double>> rute = poblacion_inicial_t[i];
+        vector<vector<double>> op;
+        //print_vv(poblacion_inicial_c[0][0],"ad");
         for (int j=0; j<poblacion_inicial_c[i].size(); j++){
             vector<double> l_point = rute[j]; // launch point
-            vector<double> last = rute[rute.size()-1]; //last l/r point 
+            vector<double> last = rute[rute.size()-1]; //last l/r point
             //std::cout << "punto" << "\n";
-            for (int k=0; k<l_point.size(); k++){
-                printf("%.17g \n", l_point[k]);
-            }
+            // for (int k=0; k<l_point.size(); k++){
+            //     printf("%.17g \n", l_point[k]);
+            // }
             if(l_point == last){
                 vector<double> r_point = rute[0]; //retrival point si es la ultima operacion
                 // std::cout << "punto+1" << "\n";
@@ -195,9 +196,10 @@ double f_evaluacion(){
                 //     printf("%.17g \n", r_point[k]);
                 // }
             }
-            vector<vector<double>> op = poblacion_inicial_c[i][j];
+            op = poblacion_inicial_c[i][j];
+            // std::cout << "op" << "\n";
+            // print_vv(op);
         }
-
     }
     return 0;
 }
