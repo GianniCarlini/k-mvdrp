@@ -120,7 +120,7 @@ void print_vv(vector<vector<double>> v){ //printear array de arrays
     }
 }
 
-void print(std::vector<int> const &v){
+void print(std::vector<double> const &v){
     for (int i: v) {
         std::cout << i << ' ';
     }
@@ -169,38 +169,65 @@ void generar_poblacion(int n)
 }
 
 double f_evaluacion(){
-    double total_time=0;
+    vector<vector<double>> tt_times;
     int cont = 0;
-
     for (int i=0; i<poblacion_inicial_c.size(); i++){
         vector<vector<double>> rute = poblacion_inicial_t[i];
         vector<vector<double>> op;
+        vector<double> times;
         //print_vv(poblacion_inicial_c[0][0],"ad");
         for (int j=0; j<poblacion_inicial_c[i].size(); j++){
+            double total_time = 0;
             vector<double> l_point = rute[j]; // launch point
+            vector<double> r_point;
             vector<double> last = rute[rute.size()-1]; //last l/r point
             //std::cout << "punto" << "\n";
             // for (int k=0; k<l_point.size(); k++){
             //     printf("%.17g \n", l_point[k]);
             // }
             if(l_point == last){
-                vector<double> r_point = rute[0]; //retrival point si es la ultima operacion
+                r_point = rute[0]; //retrival point si es la ultima operacion
                 // std::cout << "punto+1" << "\n";
                 // for (int k=0; k<r_point.size(); k++){
                 //     printf("%.17g \n", r_point[k]);
                 // }
             }else{
-                vector<double> r_point = rute[j+1]; //retrival point para el resto de casos
+                r_point = rute[j+1]; //retrival point para el resto de casos
                 // std::cout << "punto+1" << "\n";
                 // for (int k=0; k<r_point.size(); k++){
                 //     printf("%.17g \n", r_point[k]);
                 // }
             }
             op = poblacion_inicial_c[i][j];
+            if(op.size()==1){
+                double t_ida = euclidian(l_point[0],l_point[1], op[0][0],op[0][1]);
+                double t_vuelta = euclidian(op[0][0],op[0][1],r_point[0],r_point[1]);
+                total_time = total_time + t_ida + t_vuelta;
+            }else if (op.size() > 1){
+                for (int l = 0; l<op.size(); l++){
+                    vector<double>operation = op[l];
+                    // std::cout << operation[0] << "\n";
+                    // std::cout << operation[1] << "\n";
+                    if(l == 0){
+                        double time = euclidian(operation[0],operation[1],l_point[0],l_point[1]);
+                        total_time = total_time + time;
+                    }else if( l == op.size()-1){
+                        double time_1 = euclidian(operation[0],operation[1],r_point[0],r_point[1]);
+                        double time_2 = euclidian(op[l-1][0],op[l-1][1],operation[0],operation[1]);
+                        total_time = total_time + time_1 + time_2;
+                    }else {
+                        double time = euclidian(op[l-1][0],op[l-1][1],operation[0],operation[1]);
+                        total_time = total_time + time;
+                    }
+                }
+            }
+            times.push_back(total_time);
             // std::cout << "op" << "\n";
             // print_vv(op);
         }
+        tt_times.push_back(times);
     }
+    print_vv(tt_times);
     return 0;
 }
 
