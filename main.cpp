@@ -11,14 +11,14 @@
 #include <typeinfo>
 #include<math.h>
 #include <random>
-#include <chrono> 
+#include <chrono>
 using namespace std;
 
 
 vector<vector<double>> c_locations; //guardaremos la ubicacion de los clientes in format <(x,y,mass)>
 vector<vector<double>> lr_locations; //guardaremos la los puntos de lanzamiento/rescate in format <(x,y)>
-vector<vector<vector<vector<double>>>> poblacion_inicial_c; //guardaremos la poblacion
-vector<vector<vector<double>>> poblacion_inicial_t; //guardaremos la poblacion
+vector<vector<vector<vector<double>>>> poblacion_inicial_c; //guardaremos la poblacion inicial de clientes
+vector<vector<vector<double>>> poblacion_inicial_t; //guardaremos la poblacion inicial de camion
 
 float drone_speed;
 float truck_speed;
@@ -110,31 +110,7 @@ double euclidian(double x1, double y1, double x2, double y2)
 	return dist;
 }
 
-void clientes(){
-    vector<vector<double>> copy_c;
-    for (int i = 0; i < 1; i++)
-    {
-        printf("%.17g \n", c_locations[i][0]);
-        printf("%.17g \n", c_locations[i][1]);
-        printf("%.17g \n", c_locations[i+1][0]);
-        printf("%.17g \n", c_locations[i+1][1]);
-        double asd = euclidian( c_locations[i][0], c_locations[i][1], c_locations[i+1][0], c_locations[i+1][1]);
-        std::cout << asd << "\n";
-        // for (int j = 0; j < c_locations[i].size(); j++)
-        // {
-        //     if (j < 2){
-        //         std::cout << "x" << "\n";
-        //         printf("%.17g \n", c_locations[i][j]);
-        //     }else {
-        //         std::cout << "p" << "\n";
-        //         printf("%.17g \n", c_locations[i][j]);
-        //     }
-        // }
-    }
-}
-
 void print_vv(vector<vector<double>> v, string name){ //printear array de arrays
-    std::cout << "print" << "\n";
     for (int i = 0; i < v.size(); i++)
     {
         std::cout << name << "\n";
@@ -193,6 +169,38 @@ void generar_poblacion(int n)
     }
 }
 
+double f_evaluacion(){
+    double total_time=0;
+    int cont = 0;
+
+    for (int i=0; i<poblacion_inicial_c.size(); i++){
+        vector<vector<double>> rute = poblacion_inicial_t[i];
+        for (int j=0; j<poblacion_inicial_c[i].size(); j++){
+            vector<double> l_point = rute[j]; // launch point
+            vector<double> last = rute[rute.size()-1]; //last l/r point 
+            //std::cout << "punto" << "\n";
+            for (int k=0; k<l_point.size(); k++){
+                printf("%.17g \n", l_point[k]);
+            }
+            if(l_point == last){
+                vector<double> r_point = rute[0]; //retrival point si es la ultima operacion
+                // std::cout << "punto+1" << "\n";
+                // for (int k=0; k<r_point.size(); k++){
+                //     printf("%.17g \n", r_point[k]);
+                // }
+            }else{
+                vector<double> r_point = rute[j+1]; //retrival point para el resto de casos
+                // std::cout << "punto+1" << "\n";
+                // for (int k=0; k<r_point.size(); k++){
+                //     printf("%.17g \n", r_point[k]);
+                // }
+            }
+            vector<vector<double>> op = poblacion_inicial_c[i][j];
+        }
+
+    }
+    return 0;
+}
 
 int main(int argc, char *argv[]){
     string passedValue;
@@ -202,10 +210,10 @@ int main(int argc, char *argv[]){
     //Primero leemos el archivo y generamos las variables
     leer_archivo(passedValue);
     generar_poblacion(2);
+    f_evaluacion();
     //print_vv(lr_locations, "lr");
     //print_vv(c_locations, "c");
     // printf("%.17g \n", lr_locations[0][1]);
     // std::cout << passedValue << "\n";
-    //clientes();
     return 0;
 }
