@@ -19,6 +19,7 @@ vector<vector<double>> c_locations; //guardaremos la ubicacion de los clientes i
 vector<vector<double>> lr_locations; //guardaremos la los puntos de lanzamiento/rescate in format <(x,y)>
 vector<vector<vector<vector<double>>>> poblacion_inicial_c; //guardaremos la poblacion inicial de clientes
 vector<vector<vector<double>>> poblacion_inicial_t; //guardaremos la poblacion inicial de camion
+vector<double> listaFO;
 
 float drone_speed;
 float truck_speed;
@@ -55,7 +56,7 @@ void leer_archivo(string arch){
             drone_speed = f_1;
             c++;
         }
-        else if ( c >= 9 && helper){ //lineas para el cliente
+        else if ( c >= 8 && helper){ //lineas para el cliente
             stringstream input_stringstream(linea);
             string locations;
             getline(input_stringstream, locations);
@@ -97,6 +98,15 @@ void leer_archivo(string arch){
     }
 }
 
+double suma(vector<double> v){
+    double suma = 0;
+    for( int i = 0; i < v.size(); i++ ) {
+        suma += v[i];
+    }
+
+    return suma;
+}
+
 double euclidian(double x1, double y1, double x2, double y2)
 {
     //calculo de distancia euclidiana
@@ -113,6 +123,7 @@ double euclidian(double x1, double y1, double x2, double y2)
 void print_vv(vector<vector<double>> v){ //printear array de arrays
     for (int i = 0; i < v.size(); i++)
     {
+        std::cout << "xdlol" << '\n';
         for (int j = 0; j < v[i].size(); j++)
         {
             printf("%.17g \n", v[i][j]);
@@ -121,7 +132,7 @@ void print_vv(vector<vector<double>> v){ //printear array de arrays
 }
 
 void print(std::vector<double> const &v){
-    for (int i: v) {
+    for (double i: v) {
         std::cout << i << ' ';
     }
 }
@@ -168,20 +179,22 @@ void generar_poblacion(int n)
     }
 }
 
-double f_evaluacion(){
+auto f_evaluacion(){
     vector<vector<double>> tt_times;
     int cont = 0;
     for (int i=0; i<poblacion_inicial_c.size(); i++){
+        //std::cout << "op " << "i\n";
         vector<vector<double>> rute = poblacion_inicial_t[i];
         vector<vector<double>> op;
         vector<double> times;
         //print_vv(poblacion_inicial_c[0][0],"ad");
         for (int j=0; j<poblacion_inicial_c[i].size(); j++){
             double total_time = 0;
+            double temp_distancia = 0;
             vector<double> l_point = rute[j]; // launch point
             vector<double> r_point;
             vector<double> last = rute[rute.size()-1]; //last l/r point
-            //std::cout << "punto" << "\n";
+            //std::cout << poblacion_inicial_c[i].size()<< "a\n";
             // for (int k=0; k<l_point.size(); k++){
             //     printf("%.17g \n", l_point[k]);
             // }
@@ -198,37 +211,52 @@ double f_evaluacion(){
                 //     printf("%.17g \n", r_point[k]);
                 // }
             }
+            double distancia_truck = euclidian(l_point[0],l_point[1],r_point[0],r_point[1]);
+            double truck_time = (distancia_truck*1000)/truck_speed;
+            total_time = total_time + truck_time;
             op = poblacion_inicial_c[i][j];
             if(op.size()==1){
-                double t_ida = euclidian(l_point[0],l_point[1], op[0][0],op[0][1]);
-                double t_vuelta = euclidian(op[0][0],op[0][1],r_point[0],r_point[1]);
-                total_time = total_time + t_ida + t_vuelta;
+                double d_ida = euclidian(l_point[0],l_point[1], op[0][0],op[0][1]);
+                double d_vuelta = euclidian(op[0][0],op[0][1],r_point[0],r_point[1]);
+                temp_distancia = temp_distancia + d_ida + d_vuelta;
             }else if (op.size() > 1){
                 for (int l = 0; l<op.size(); l++){
                     vector<double>operation = op[l];
                     // std::cout << operation[0] << "\n";
                     // std::cout << operation[1] << "\n";
                     if(l == 0){
-                        double time = euclidian(operation[0],operation[1],l_point[0],l_point[1]);
-                        total_time = total_time + time;
+                        double dist = euclidian(operation[0],operation[1],l_point[0],l_point[1]);
+                        temp_distancia = temp_distancia + dist;
                     }else if( l == op.size()-1){
-                        double time_1 = euclidian(operation[0],operation[1],r_point[0],r_point[1]);
-                        double time_2 = euclidian(op[l-1][0],op[l-1][1],operation[0],operation[1]);
-                        total_time = total_time + time_1 + time_2;
+                        double dist_1 = euclidian(operation[0],operation[1],r_point[0],r_point[1]);
+                        double dist_2 = euclidian(op[l-1][0],op[l-1][1],operation[0],operation[1]);
+                        temp_distancia = temp_distancia + dist_1 + dist_2;
                     }else {
-                        double time = euclidian(op[l-1][0],op[l-1][1],operation[0],operation[1]);
-                        total_time = total_time + time;
+                        double dist = euclidian(op[l-1][0],op[l-1][1],operation[0],operation[1]);
+                        temp_distancia = temp_distancia + dist;
                     }
                 }
             }
+            double op_time = (temp_distancia*1000)/drone_speed;
+            total_time = total_time + op_time;
             times.push_back(total_time);
-            // std::cout << "op" << "\n";
-            // print_vv(op);
+            //std::cout << total_time << "\n";
+            //print(times);
         }
         tt_times.push_back(times);
     }
-    print_vv(tt_times);
-    return 0;
+    return tt_times;
+}
+
+void evolutivo(int maxIter ){
+    auto eval = f_evaluacion();
+    for(int i = 0; i < maxIter; i++){
+        vector<double> tiempos;
+        for(int time = 0; time < eval.size(); time++){
+            tiempos.push_back(suma(eval[time]));
+        }
+        print(tiempos);
+    }
 }
 
 int main(int argc, char *argv[]){
@@ -238,9 +266,10 @@ int main(int argc, char *argv[]){
     }
     //Primero leemos el archivo y generamos las variables
     leer_archivo(passedValue);
-    generar_poblacion(2);
-    f_evaluacion();
-    //print_vv(lr_locations, "lr");
+    generar_poblacion(4);
+    //auto eval = f_evaluacion();
+    evolutivo(1);
+    //print_vv(eval);
     //print_vv(c_locations, "c");
     // printf("%.17g \n", lr_locations[0][1]);
     // std::cout << passedValue << "\n";
