@@ -295,7 +295,7 @@ void evolutivo(int iter ){
                 continue;
             }else{
                 for(int k = 0; k < poblacion_inicial_c[j].size(); k++){
-                    std::swap(poblacion_inicial_c[j][0], poblacion_inicial_c[j][1]);
+                    std::swap(poblacion_inicial_c[j][0], poblacion_inicial_c[j][2]);
                     auto itr_i = std::next(poblacion_inicial_c[j].begin(), 0);
                     auto itr_j = std::next(poblacion_inicial_c[j].begin(), 1);
                     std::iter_swap(itr_i, itr_j);
@@ -305,10 +305,10 @@ void evolutivo(int iter ){
         }
         std::cout << mutados.size() << "\n";
         print_vv(mutados[0][0]);
-        auto new_eval = f_evaluacion(mutados);
+        //auto new_eval = f_evaluacion(mutados);
         mutados.clear();
         eval.clear();
-        eval = new_eval;
+        //eval = new_eval;
     }
 }
 
