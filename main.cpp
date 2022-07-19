@@ -23,11 +23,11 @@ vector<double> listaFO;
 
 float drone_speed;
 float truck_speed;
-int poblacion;
-int maxIter;
+int poblacion = 4;
+int maxIter = 20;
 int n_drones = 1; //cantidad de drones en el sistema
-float peso_drone = 3; // peso maximo de un dron
-int maxWeight;
+float maxWeight = 3; // peso maximo de un dron
+int best;
 
 void leer_archivo(string arch){
     string nombreArchivo = arch;
@@ -123,7 +123,7 @@ double euclidian(double x1, double y1, double x2, double y2)
 void print_vv(vector<vector<double>> v){ //printear array de arrays
     for (int i = 0; i < v.size(); i++)
     {
-        std::cout << "xdlol" << '\n';
+        //std::cout << "xdlol" << '\n';
         for (int j = 0; j < v[i].size(); j++)
         {
             printf("%.17g \n", v[i][j]);
@@ -154,7 +154,7 @@ void generar_poblacion(int n)
         std::default_random_engine e(seed);
         std::shuffle(vect2.begin(), vect2.end(), e);
         vector<vector<vector<double>>> sol_op;
-        float capacidad_max = peso_drone * n_drones;
+        float capacidad_max = maxWeight * n_drones;
         int x;
         float peso_operacion = 0;
         vector<vector<double>> temp_op;
@@ -178,17 +178,17 @@ void generar_poblacion(int n)
         poblacion_inicial_t.push_back(vect3);
     }
 }
-
-auto f_evaluacion(){
+// vector<vector<vector<vector<double>>>> poblacion_inicial_c;
+auto f_evaluacion(vector<vector<vector<vector<double>>>> poblacion_inicial){
     vector<vector<double>> tt_times;
     int cont = 0;
-    for (int i=0; i<poblacion_inicial_c.size(); i++){
+    for (int i=0; i<poblacion_inicial.size(); i++){
         //std::cout << "op " << "i\n";
         vector<vector<double>> rute = poblacion_inicial_t[i];
         vector<vector<double>> op;
         vector<double> times;
         //print_vv(poblacion_inicial_c[0][0],"ad");
-        for (int j=0; j<poblacion_inicial_c[i].size(); j++){
+        for (int j=0; j<poblacion_inicial[i].size(); j++){
             double total_time = 0;
             double temp_distancia = 0;
             vector<double> l_point = rute[j]; // launch point
@@ -214,7 +214,7 @@ auto f_evaluacion(){
             double distancia_truck = euclidian(l_point[0],l_point[1],r_point[0],r_point[1]);
             double truck_time = (distancia_truck*1000)/truck_speed;
             total_time = total_time + truck_time;
-            op = poblacion_inicial_c[i][j];
+            op = poblacion_inicial[i][j];
             if(op.size()==1){
                 double d_ida = euclidian(l_point[0],l_point[1], op[0][0],op[0][1]);
                 double d_vuelta = euclidian(op[0][0],op[0][1],r_point[0],r_point[1]);
@@ -248,14 +248,67 @@ auto f_evaluacion(){
     return tt_times;
 }
 
-void evolutivo(int maxIter ){
-    auto eval = f_evaluacion();
-    for(int i = 0; i < maxIter; i++){
+void evolutivo(int iter ){
+    auto eval = f_evaluacion(poblacion_inicial_c);
+    for(int i = 0; i < iter; i++){
+        vector<vector<vector<vector<double>>>> mutados;
+        //print_vv(eval);
         vector<double> tiempos;
         for(int time = 0; time < eval.size(); time++){
             tiempos.push_back(suma(eval[time]));
         }
-        print(tiempos);
+        double max = -999999;
+        int max_index = -1;
+        for (int m = 0; m < tiempos.size(); m++)
+        {
+            if (tiempos[m] > max)
+            {
+                max = tiempos[m];
+                max_index = m;
+            }
+        }
+
+        double min = 999999;
+        int min_index = -1;
+        for (int n = 0; n < tiempos.size(); n++)
+        {
+            if (tiempos[n] < min)
+            {
+                min = tiempos[n];
+                min_index = n;
+            }
+        }
+        //mutados.push_back(poblacion_inicial_c[max_index]);
+        //mutados.push_back(poblacion_inicial_c[min_index]);
+        std::cout << max << "\n";
+        srand(time(NULL));
+        int r_index_1;
+        int r_index_2;
+        srand (time(NULL));
+        r_index_1 = 1;
+        r_index_2 = 2;
+        if(r_index_2 == r_index_1){
+            r_index_2 = 2;
+        }
+        for(int j = 0; j < poblacion_inicial_c.size(); j++){
+            if(poblacion_inicial_c[j] == poblacion_inicial_c[max_index] || poblacion_inicial_c[j] == poblacion_inicial_c[min_index]){
+                continue;
+            }else{
+                for(int k = 0; k < poblacion_inicial_c[j].size(); k++){
+                    std::swap(poblacion_inicial_c[j][0], poblacion_inicial_c[j][1]);
+                    auto itr_i = std::next(poblacion_inicial_c[j].begin(), 0);
+                    auto itr_j = std::next(poblacion_inicial_c[j].begin(), 1);
+                    std::iter_swap(itr_i, itr_j);
+                }
+                mutados.push_back(poblacion_inicial_c[j]);
+            }
+        }
+        std::cout << mutados.size() << "\n";
+        print_vv(mutados[0][0]);
+        auto new_eval = f_evaluacion(mutados);
+        mutados.clear();
+        eval.clear();
+        eval = new_eval;
     }
 }
 
@@ -266,9 +319,9 @@ int main(int argc, char *argv[]){
     }
     //Primero leemos el archivo y generamos las variables
     leer_archivo(passedValue);
-    generar_poblacion(4);
+    generar_poblacion(poblacion);
     //auto eval = f_evaluacion();
-    evolutivo(1);
+    evolutivo(maxIter);
     //print_vv(eval);
     //print_vv(c_locations, "c");
     // printf("%.17g \n", lr_locations[0][1]);
