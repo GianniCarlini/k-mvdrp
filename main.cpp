@@ -20,11 +20,13 @@ vector<vector<double>> lr_locations; //guardaremos la los puntos de lanzamiento/
 vector<vector<vector<vector<double>>>> poblacion_inicial_c; //guardaremos la poblacion inicial de clientes
 vector<vector<vector<double>>> poblacion_inicial_t; //guardaremos la poblacion inicial de camion
 vector<double> listaFO;
+vector<vector<vector<vector<double>>>> poblacion; //guardaremos la poblacion inicial de clientes
+
 
 float drone_speed;
 float truck_speed;
-int poblacion = 4;
-int maxIter = 20;
+int p = 20;
+int maxIter = 200;
 int n_drones = 1; //cantidad de drones en el sistema
 float maxWeight = 3; // peso maximo de un dron
 int best;
@@ -248,8 +250,19 @@ auto f_evaluacion(vector<vector<vector<vector<double>>>> poblacion_inicial){
     return tt_times;
 }
 
+template <typename T>
+void swap(T &x, T &y)
+{
+    T temp = std::move(x);
+    x = std::move(y);
+    y = std::move(temp);
+}
+
 void evolutivo(int iter ){
     auto eval = f_evaluacion(poblacion_inicial_c);
+        for (int v=0; v<poblacion_inicial_c.size(); v++){
+            poblacion.push_back(poblacion_inicial_c[v]);}
+    double min = 999999;
     for(int i = 0; i < iter; i++){
         vector<vector<vector<vector<double>>>> mutados;
         //print_vv(eval);
@@ -257,18 +270,6 @@ void evolutivo(int iter ){
         for(int time = 0; time < eval.size(); time++){
             tiempos.push_back(suma(eval[time]));
         }
-        double max = -999999;
-        int max_index = -1;
-        for (int m = 0; m < tiempos.size(); m++)
-        {
-            if (tiempos[m] > max)
-            {
-                max = tiempos[m];
-                max_index = m;
-            }
-        }
-
-        double min = 999999;
         int min_index = -1;
         for (int n = 0; n < tiempos.size(); n++)
         {
@@ -280,7 +281,7 @@ void evolutivo(int iter ){
         }
         //mutados.push_back(poblacion_inicial_c[max_index]);
         //mutados.push_back(poblacion_inicial_c[min_index]);
-        std::cout << max << "\n";
+        std::cout << min << "\n";
         srand(time(NULL));
         int r_index_1;
         int r_index_2;
@@ -290,25 +291,30 @@ void evolutivo(int iter ){
         if(r_index_2 == r_index_1){
             r_index_2 = 2;
         }
+        // for(int j = 0; j < poblacion_inicial_c.size(); j++){
+        //     if(poblacion_inicial_c[j] == poblacion_inicial_c[max_index] || poblacion_inicial_c[j] == poblacion_inicial_c[min_index]){
+        //         continue;
+        //     }else{
+        //         for(int k = 0; k < poblacion_inicial_c[j].size(); k++){
+        //             std::swap(poblacion_inicial_c[j][0], poblacion_inicial_c[j][2]);
+        //             auto itr_i = std::next(poblacion_inicial_c[j].begin(), 0);
+        //             auto itr_j = std::next(poblacion_inicial_c[j].begin(), 1);
+        //             std::iter_swap(itr_i, itr_j);
+        //         }
+        //         mutados.push_back(poblacion_inicial_c[j]);
+        //     }
+        // }
+
+        //std::cout << "asd" << "\n";
         for(int j = 0; j < poblacion_inicial_c.size(); j++){
-            if(poblacion_inicial_c[j] == poblacion_inicial_c[max_index] || poblacion_inicial_c[j] == poblacion_inicial_c[min_index]){
-                continue;
-            }else{
-                for(int k = 0; k < poblacion_inicial_c[j].size(); k++){
-                    std::swap(poblacion_inicial_c[j][0], poblacion_inicial_c[j][2]);
-                    auto itr_i = std::next(poblacion_inicial_c[j].begin(), 0);
-                    auto itr_j = std::next(poblacion_inicial_c[j].begin(), 1);
-                    std::iter_swap(itr_i, itr_j);
-                }
-                mutados.push_back(poblacion_inicial_c[j]);
-            }
-        }
-        std::cout << mutados.size() << "\n";
-        print_vv(mutados[0][0]);
-        //auto new_eval = f_evaluacion(mutados);
-        mutados.clear();
+        auto copy = poblacion[j][0];
+        poblacion[j].erase(poblacion[j].begin());
+        //print_vv(copy);
+        poblacion[j].push_back(copy);}
+        auto new_eval = f_evaluacion(poblacion);
+        //print_vv(new_eval);
         eval.clear();
-        //eval = new_eval;
+        eval = new_eval;
     }
 }
 
@@ -319,7 +325,7 @@ int main(int argc, char *argv[]){
     }
     //Primero leemos el archivo y generamos las variables
     leer_archivo(passedValue);
-    generar_poblacion(poblacion);
+    generar_poblacion(p);
     //auto eval = f_evaluacion();
     evolutivo(maxIter);
     //print_vv(eval);
