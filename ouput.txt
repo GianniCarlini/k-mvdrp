@@ -1,0 +1,13 @@
+instance_69 k=2 capacidad dron=3kg tiempo de ejecución=0s valor objetivo=40500.7s
+camión viajó desde (12.8436,11.7479) a (24.4259,12.9211)
+drone 1 atendió a cliente:  (12.8049,1.26798) (3.18604,1.53867)
+drone 2 atendió a cliente:  (20.0052,21.8015)
+camión viajó desde (24.4259,12.9211) a (17.7105,13.2947)
+drone 1 atendió a cliente:  (22.9432,0.605815)
+drone 2 atendió a cliente:  (8.78721,16.5291)
+camión viajó desde (17.7105,13.2947) a (4.20431,12.7633)
+drone 1 atendió a cliente:  (13.6743,12.6581)
+drone 2 atendió a cliente:  (2.69355,4.78474)
+camión viajó desde (4.20431,12.7633) a (19.6304,19.0913)
+drone 1 atendió a cliente:  (3.0191,10.5751) (4.12676,17.8181)
+drone 2 atendió a cliente:  (22.7617,11.963) (20.2422,16.7556)

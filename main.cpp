@@ -20,6 +20,7 @@ vector<vector<double>> lr_locations; //guardaremos la los puntos de lanzamiento/
 vector<vector<vector<vector<double>>>> poblacion_inicial_c; //guardaremos la poblacion inicial de clientes
 vector<vector<vector<double>>> poblacion_inicial_t; //guardaremos la poblacion inicial de camion
 vector<vector<vector<double>>> best;
+vector<vector<double>> best_rute;
 vector<vector<vector<vector<double>>>> poblacion; //guardaremos la poblacion inicial de clientes
 
 
@@ -27,8 +28,10 @@ float drone_speed;
 float truck_speed;
 int p = 20;
 int maxIter = 5;
-int n_drones = 1; //cantidad de drones en el sistema
+int n_drones = 2; //cantidad de drones en el sistema
 float maxWeight = 3; // peso maximo de un dron
+unsigned t0, t1;
+double best_t;
 
 void leer_archivo(string arch){
     string nombreArchivo = arch;
@@ -277,11 +280,12 @@ void evolutivo(int iter ){
                 min = tiempos[n];
                 min_index = n;
                 best = poblacion[n];
+                best_rute = poblacion_inicial_t[n];
             }
         }
         //mutados.push_back(poblacion_inicial_c[max_index]);
         //mutados.push_back(poblacion_inicial_c[min_index]);
-        std::cout << min << "\n";
+        //std::cout << min << "\n";
         // srand(time(NULL));
         // int r_index_1;
         // int r_index_2;
@@ -309,15 +313,63 @@ void evolutivo(int iter ){
         for(int j = 0; j < poblacion_inicial_c.size(); j++){
         auto copy = poblacion[j][0];
         poblacion[j].erase(poblacion[j].begin());
-        print_vv(best[0]);
+        //print_vv(best[0]);
         poblacion[j].push_back(copy);}
         auto new_eval = f_evaluacion(poblacion);
         //print_vv(new_eval);
         eval.clear();
         eval = new_eval;
     }
+    best_t=min;
 }
 
+
+void removeLastN(std::string &str, int n) {            // no-const
+    if (str.length() < n) {
+        return ;
+    }
+ 
+    str.erase(str.length() - n);
+}
+
+void out(string passedValue, double time){
+    string nombreArchivo = "ouput.txt";
+    ofstream archivo;
+    // Abrimos el archivo
+    archivo.open(nombreArchivo.c_str(), fstream::out);
+    // instacia
+    removeLastN(passedValue, 4);
+    archivo <<passedValue;
+    archivo << " k="<<n_drones;
+    archivo << " capacidad dron="<<maxWeight<<"kg";
+    archivo << " tiempo de ejecución="<<time<<"s";
+    archivo << " valor objetivo="<<best_t<<"s"<< endl;
+    //recuperamos la ruta del camion
+    vector<vector<double>> rute = best_rute;
+    for(int i=0; i<rute.size()-1;i++){
+        archivo << "camión viajó desde ("<<rute[i][0]<<","<<rute[i][1]<<")";
+        archivo << " a ("<<rute[i+1][0]<<","<<rute[i+1][1]<<")";
+        archivo << endl;
+        auto operation = best[i];
+        float div = (float)n_drones;
+        int n_op = operation.size()/div;
+        int count = 0;
+        //std::cout<<operation.size() << " size"<<"\n";
+        //std::cout<<lround(n_op) << " round(n_op)"<<"\n";
+        for(int drones=0;drones<n_drones;drones++){
+            archivo << "drone "<< drones+1;
+            archivo << " atendió a cliente: ";
+            for(int j=0; j<lround(n_op) && count<operation.size()-1; j++){
+                count = count + 1;
+                archivo << " ("<<operation[count][0]<<","<<operation[count][1]<<")";
+            }
+            archivo << endl;
+        }
+    }
+    // Finalmente lo cerramos
+    archivo.close();
+    cout << "Escrito correctamente\n";
+}
 int main(int argc, char *argv[]){
     string passedValue;
     for(int i = 1; i < argc; i++){
@@ -327,7 +379,11 @@ int main(int argc, char *argv[]){
     leer_archivo(passedValue);
     generar_poblacion(p);
     //auto eval = f_evaluacion();
+    t0=clock();
     evolutivo(maxIter);
+    t1 = clock();
+    double time = (double(t1-t0)/CLOCKS_PER_SEC);
+    out(passedValue,time);
     //print_vv(eval);
     //print_vv(c_locations, "c");
     // printf("%.17g \n", lr_locations[0][1]);
