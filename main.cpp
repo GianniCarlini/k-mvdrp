@@ -19,7 +19,7 @@ vector<vector<double>> c_locations; //guardaremos la ubicacion de los clientes i
 vector<vector<double>> lr_locations; //guardaremos la los puntos de lanzamiento/rescate in format <(x,y)>
 vector<vector<vector<vector<double>>>> poblacion_inicial_c; //guardaremos la poblacion inicial de clientes
 vector<vector<vector<double>>> poblacion_inicial_t; //guardaremos la poblacion inicial de camion
-vector<vector<vector<double>>> listaFO;
+vector<vector<vector<double>>> best;
 vector<vector<vector<vector<double>>>> poblacion; //guardaremos la poblacion inicial de clientes
 
 
@@ -29,7 +29,6 @@ int p = 20;
 int maxIter = 5;
 int n_drones = 1; //cantidad de drones en el sistema
 float maxWeight = 3; // peso maximo de un dron
-int best;
 
 void leer_archivo(string arch){
     string nombreArchivo = arch;
@@ -277,7 +276,7 @@ void evolutivo(int iter ){
             {
                 min = tiempos[n];
                 min_index = n;
-                listaFO = poblacion[n];
+                best = poblacion[n];
             }
         }
         //mutados.push_back(poblacion_inicial_c[max_index]);
@@ -310,7 +309,7 @@ void evolutivo(int iter ){
         for(int j = 0; j < poblacion_inicial_c.size(); j++){
         auto copy = poblacion[j][0];
         poblacion[j].erase(poblacion[j].begin());
-        print_vv(listaFO[0]);
+        print_vv(best[0]);
         poblacion[j].push_back(copy);}
         auto new_eval = f_evaluacion(poblacion);
         //print_vv(new_eval);
